@@ -10,10 +10,11 @@
 
 Installation steps testing on Ubuntu 14.04 and Debian 8
 
-1. <code>apt-get install python-flask python-pip nginx uwsgi uwsgi-plugin-python</code>
+1. Install software
+`apt-get install python-flask python-pip nginx uwsgi uwsgi-plugin-python`
 
 2. Create virtualhost file /etc/nginx/sites-enabled/telegram:
-<code>
+```
 upstream flask_serv {
     server unix:/tmp/flask.sock;
 }
@@ -30,14 +31,14 @@ server {
         include uwsgi_params;
     }
 }
-</code>
+```
 
 3. Create uWSGI application file /etc/uwsgi/apps-enabled/flask.xml:
-<code>
+```
 <uwsgi>
     <socket>/tmp/flask.sock</socket>
     <pythonpath>/opt/telegram-bot/</pythonpath>
     <module>telegramhook:app</module>
     <plugins>python27</plugins>
 </uwsgi>
-</code>
+```
