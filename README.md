@@ -89,7 +89,7 @@ TelegramBotToken='164444419:BBERDQsjJBG_lx8qPQsAFLDCMIc1XxhINlw'
 ZabbixServerUrl='https://zabbix.example.com'
 ZabbixUsername='gerasimov'
 ZabbixPassword='qwerty123'
-DBFile='/opt/telegram-bot/telegram.db'
+DBFile='/opt/telegram4zabbix/telegram.db'
 WebHookUrl='https://telegram.example.org/hook'
 ChatPassword='verysecret'
 LogFile='/var/log/telegram.log'
@@ -104,9 +104,9 @@ service nginx reload
 #### 7.Set webhook: `curl https://telegram.example.com/set_webhook`
 
 #### 8.Add new mediatype in zabbix server.
-1)Create link telegram-sent script on zabbix default alert folder: `ln -s /opt/telegram4zabbix/telegram-sent.py /usr/lib/zabbix/alertscripts/telegram-sent.py`
-1)Go to Administration->Media types->Create media type
-2)Set following: 
+1)Create link telegram-sent script on zabbix default alert folder: `ln -s /opt/telegram4zabbix/telegram-sent.py /usr/lib/zabbix/alertscripts/telegram-sent.py`   
+2)Go to Administration->Media types->Create media type   
+3)Set following:    
 ```
 Name='Telegram'
 Type='Script'
@@ -116,5 +116,33 @@ Script parameters:
 {ALERT.SUBJECT}
 {ALERT.MESSAGE}
 ```
+4) Add new media to zabbix user from which you need receive alerts, in 'Sent to' field write any address.   
+5) Create Action in zabbix, open Configuration->Actions->Create action, set following:
+Action tab:
+```
+Name: Telegram
+Default subject: {TRIGGER.STATUS}: {TRIGGER.NAME}
+Default message: 
+{TRIGGER.STATUS}: {TRIGGER.NAME}
+Host: {HOSTNAME}
+Trigger severity: {TRIGGER.SEVERITY}
+Original event ID: {EVENT.ID}
+
+Recovery subject: {TRIGGER.STATUS}: {TRIGGER.NAME}
+Recovery message:
+{TRIGGER.STATUS}: {TRIGGER.NAME}
+Host: {HOSTNAME}
+Trigger severity: {TRIGGER.SEVERITY}
+Original event ID: {EVENT.ID}
+```
+Conditions tab:
+```
+Type of calculation: And/Or
+Conditions:
+Maintenance status not in maintenance
+Trigger value = PROBLEM
+```
+Operations tab:
+Add step that send telegram message to specified zabbix users or groups.
 
 #### 9.All done! Send message to your telegram bot and enter password.
