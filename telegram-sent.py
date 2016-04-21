@@ -3,12 +3,7 @@ import telegram
 import sys
 import logging
 import pickledb
-
-###Variables###
-TelegramBotToken='164444419:BBERDQsjJBG_lx8qPQsAFLDCMIc1XxhINlw'
-DBFile='/opt/telegram-bot/telegram.db'
-LogFile='/var/log/telegram.log'
-###EndVariables###
+from config import *
 
 bot = telegram.Bot(token=TelegramBotToken)
 logger = logging.getLogger('myapp')
@@ -18,13 +13,19 @@ hdlr.setFormatter(formatter)
 logger.addHandler(hdlr)
 logger.setLevel(logging.DEBUG)
 
-custom_keyboard = [[ 'Zabbix status', 'Unsubscribe' ]]
+custom_keyboard = [[ 'Zabbix status' ]]
 reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard)
-text = 'Zabbix:\n' + sys.argv[3]
-#text = sys.argv[3]
-db = pickledb.load(DBFile, False)
+try:
+   textalert = sys.argv[3]
+except:
+   logger.error('No data in $3 stdin argument')
+   textalert = 'telegram-sent.py error: No data in $3 stdin argument'
+try:
+   db = pickledb.load(DBFile, False)
+except:
+   logger.error("Can't open DBFile")
 allchats = db.getall()
-logger.info(text)
+logger.info(textalert)
 for chat in allchats:
     if db.get(chat) == 'valid':
-        bot.sendMessage(chat_id=chat, text=text, reply_markup=reply_markup)
+        bot.sendMessage(chat_id=chat, text=textalert, reply_markup=reply_markup)

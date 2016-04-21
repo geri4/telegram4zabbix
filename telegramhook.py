@@ -2,16 +2,7 @@ import telegram
 import pickledb
 from flask import Flask, request
 from pyzabbix import ZabbixAPI
-
-###Variables###
-TelegramBotToken='164444419:BBERDQsjJBG_lx8qPQsAFLDCMIc1XxhINlw'
-ZabbixServerUrl='https://zabbix.example.com'
-ZabbixUsername='gerasimov'
-ZabbixPassword='qwerty123'
-DBFile='/opt/telegram-bot/telegram.db'
-WebHookUrl='https://telegram.example.org/hook'
-ChatPassword='verysecret'
-###EndVariables###
+from config import *
 
 app = Flask(__name__)
 app.config['ASSETS_DEBUG'] = True
@@ -45,6 +36,8 @@ def zabbix_triggers():
     )
     unack_trigger_ids = [t['triggerid'] for t in unack_triggers]
     for t in triggers:
+        zabbixhost = zapi.host.get('hostids=%d', t['triggerid'])
+        t['host']=zabbixhost[1]['host']
         t['unacknowledged'] = True if t['triggerid'] in unack_trigger_ids\
         else False
     return triggers
@@ -58,7 +51,7 @@ def webhook_handler():
         chat_id = str(update.message.chat.id)
         text = update.message.text.encode('utf-8')
         db = pickledb.load(DBFile, False)
-        custom_keyboard = [[ 'Zabbix status', 'Unsubscribe' ]]
+        custom_keyboard = [[ 'Zabbix status' ]]
         reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard)
         allchats = db.getall()
         if chat_id in allchats and db.get(chat_id) == 'valid':
