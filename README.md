@@ -104,19 +104,19 @@ service nginx reload
 #### 7.Set webhook: `curl https://telegram.example.com/set_webhook`
 
 #### 8.Add new mediatype in zabbix server.
-1)Create link telegram-sent script on zabbix default alert folder: `ln -s /opt/telegram4zabbix/telegram-sent.py /usr/lib/zabbix/alertscripts/telegram-sent.py`   
+1)Create link telegram-send script on zabbix default alert folder: `ln -s /opt/telegram4zabbix/telegram-send.py /usr/lib/zabbix/alertscripts/telegram-send.py`   
 2)Go to Administration->Media types->Create media type   
 3)Set following:    
 ```
 Name='Telegram'
 Type='Script'
-Script name='telegram-sent.py'
+Script name='telegram-send.py'
 Script parameters:
 {ALERT.SENDTO}
 {ALERT.SUBJECT}
 {ALERT.MESSAGE}
 ```
-4) Add new media to zabbix user from which you need receive alerts, in 'Sent to' field write any address.   
+4) Add new media to zabbix user from which you need receive alerts, in 'Send to' field write any address.   
 5) Create Action in zabbix, open Configuration->Actions->Create action, set following:
 Action tab:
 ```
