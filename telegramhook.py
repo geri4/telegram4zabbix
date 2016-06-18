@@ -15,29 +15,14 @@ def zabbix_triggers():
     # Login to the Zabbix API
     zapi.login(ZabbixUsername, ZabbixPassword)
     # Get a list of all issues (AKA tripped triggers)
-    triggers = zapi.trigger.get(only_true=1,
-        skipDependent=1,
-        monitored=1,
-        active=1,
-        output='extend',
-        expandDescription=1,
-        expandData='host',
-    )
+    triggers = zapi.trigger.get(only_true=1, skipDependent=1, monitored=1, active=1, output='extend', expandDescription=1, selectHosts=1)
 
     # Do another query to find out which issues are Unacknowledged
-    unack_triggers = zapi.trigger.get(only_true=1,
-        skipDependent=1,
-        monitored=1,
-        active=1,
-        output='extend',
-        expandDescription=1,
-        expandData='host',
-        withLastEventUnacknowledged=1,
-    )
+    unack_triggers = zapi.trigger.get(only_true=1, skipDependent=1, monitored=1, active=1, output='extend', expandDescription=1, selectHosts=1, withLastEventUnacknowledged=1)
     unack_trigger_ids = [t['triggerid'] for t in unack_triggers]
     for t in triggers:
-        zabbixhost = zapi.host.get('hostids=%d', t['triggerid'])
-        t['host']=zabbixhost[1]['host']
+        zabbixhost = zapi.host.get(hostids=int(t['hosts'][0]['hostid']))
+        t['host']=zabbixhost[0]['host']
         t['unacknowledged'] = True if t['triggerid'] in unack_trigger_ids\
         else False
     return triggers
